@@ -5,14 +5,14 @@ public class Main {
         String str = "-".repeat(15);
         System.out.println("\n"+str+"버스"+str+"\n");
 
-        /*Bus bus1 = new Bus();
+        Bus bus1 = new Bus();
         Bus bus2 = new Bus();
 
         Transportation[] bus = {bus1, bus2};
         for (Transportation b : bus) {
-            System.out.println(b.num+"번 버스 운행 시작");
+            System.out.println(b.getNum()+"번 버스 운행 시작");
         }
-        if(!bus1.num.equals(bus2.num)) System.out.println("버스 번호가 다릅니다");
+        if(!bus1.getNum().equals(bus2.getNum())) System.out.println("버스 번호가 다릅니다");
 
         System.out.println("\n"+str+"승객 3명 탑승");
         bus1.takeRide(3);
@@ -44,7 +44,7 @@ public class Main {
 
         System.out.println("\n"+str+"주유량 5 감소");
         bus1.changeGas(-5);
-*/
+
 
         System.out.println("\n"+str+"택시"+str+"\n");
 
@@ -53,9 +53,9 @@ public class Main {
         Taxi taxi2 = new Taxi();
         Transportation[] taxi = {taxi1, taxi2};
         for (Transportation t : taxi) {
-            System.out.println(t.num+"번 택시");
+            System.out.println(t.getNum()+"번 택시");
         }
-        if(!taxi1.num.equals(taxi2.num)) System.out.println("택시 번호가 다릅니다");
+        if(!taxi1.getNum().equals(taxi2.getNum())) System.out.println("택시 번호가 다릅니다");
 
 
         System.out.println("\n"+str+"5명 탑승 시도");
