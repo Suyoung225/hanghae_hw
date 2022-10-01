@@ -8,15 +8,12 @@ public class Taxi extends Transportation implements ChangeGas, ChangeSpeed {
     int distanceFares; // 거리당 요금
     int totalFare; // 누적 요금
 
-    public Taxi(UUID num,  int maxPassengers, int fare, boolean status, int minDistance,  int distanceFares, int totalFare) {
-        super(num, maxPassengers, fare,status);
-        this.minDistance = minDistance;
-        this.distanceFares = distanceFares;
-        this.totalFare = totalFare;
-    }
     // 택시 객체 생성 시 최대 승객수 4, 기본 요금 3000, 상태 일반, 기본 거리(최소 거리) 1, 거리당 추가요금: 1000
     public Taxi() {
-        this(UUID.randomUUID(),4,3000,false,2,1000,0);
+        super(UUID.randomUUID(), 4, 3000,false);
+        this.minDistance = 2;
+        this.distanceFares = 1000;
+        this.totalFare = 0;
     }
 
     // 승객 탑승
