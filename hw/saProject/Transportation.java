@@ -20,20 +20,16 @@ public class Transportation implements TakeRide{
         this.num = num;
     }
 
-    public Transportation(UUID num, int gas, int speed, int passengers, int maxPassengers,int fare, boolean status) {
+    // 버스, 택시 모두 초기 주유량 100, 속도 40, 승객 0
+    public Transportation(UUID num,  int maxPassengers,int fare, boolean status) {
         this.num = num;
-        this.gas = gas;
-        this.speed = speed;
-        this.passengers = passengers;
+        this.gas = 100;
+        this.speed = 40;
+        this.passengers = 0;
         this.maxPassengers = maxPassengers;
         this.fare = fare;
         this.status = status;
     }
-    // 버스, 택시 모두 초기 주유량 100, 속도 40, 승객 0
-    public Transportation(UUID num,  int maxPassengers,int fare,boolean status) {
-        this(num,100,40,0, maxPassengers, fare, status);
-    }
-
 
     @Override
     public void takeRide(int newPassengers) {
