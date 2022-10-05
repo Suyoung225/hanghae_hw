@@ -20,7 +20,7 @@ public class PostingResponseDto extends Timestamped {
         this.title = posting.getTitle();
         this.author = posting.getAuthor();
         this.content = posting.getContent();
-        super.createdAt = posting.getCreatedAt();
-        super.modifiedAt = posting.getModifiedAt();
+        this.createdAt = posting.getCreatedAt();
+        this.modifiedAt = posting.getModifiedAt();
     }
 }

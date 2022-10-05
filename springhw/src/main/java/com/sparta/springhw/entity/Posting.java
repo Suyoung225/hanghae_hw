@@ -31,7 +31,6 @@ public class Posting extends Timestamped{
     private Long password;
 
 
-
     // 게시글 생성 시
     public Posting(PostingRequestDto requestDto){
         this.title = requestDto.getTitle();
