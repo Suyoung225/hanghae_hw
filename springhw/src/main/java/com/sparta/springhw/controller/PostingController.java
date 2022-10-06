@@ -14,11 +14,10 @@ import java.util.List;
 @RestController
 public class PostingController {
     private final PostingService postingService;
-    private Long id;
 
     // 게시글 작성
     @PostMapping("/api/postings")
-    public ResponseMessageDto<Posting> createPosing(@RequestBody PostingRequestDto requestDto){
+    public ResponseMessageDto<PostingResponseDto> createPosing(@RequestBody PostingRequestDto requestDto){
         try{
             return new ResponseMessageDto<>(true,postingService.createPost(requestDto), null);
         }catch (Exception e){
@@ -28,7 +27,7 @@ public class PostingController {
 
     // 게시글 목록 조회
     @GetMapping("/api/postings")
-    public ResponseMessageDto<List<Posting>> getPostingList(){
+    public ResponseMessageDto<List<PostingResponseDto>> getPostingList(){
         return new ResponseMessageDto<>(true,postingService.getPostList(), null);
     }
 

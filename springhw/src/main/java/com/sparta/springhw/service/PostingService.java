@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -17,15 +18,18 @@ public class PostingService {
 
     // 게시글 작성
     @Transactional
-    public Posting createPost(PostingRequestDto requestDto){
+    public PostingResponseDto createPost(PostingRequestDto requestDto){
         Posting posting = new Posting(requestDto);
-        return postingRepository.save(posting);
+        postingRepository.save(posting);
+        return new PostingResponseDto(posting);
     }
 
     // 게시글 목록 조회
     @Transactional(readOnly=true)
-    public List<Posting> getPostList(){
-        return postingRepository.findAllByOrderByCreatedAtDesc();
+    public List<PostingResponseDto> getPostList(){
+        List<Posting> posting = postingRepository.findAllByOrderByCreatedAtDesc();
+        List<PostingResponseDto> postDtoList = posting.stream().map(PostingResponseDto::new).collect(Collectors.toList());
+        return postDtoList;
     }
 
     // 특정 게시글 조회
@@ -53,6 +57,7 @@ public class PostingService {
                 () -> new IllegalArgumentException("해당 아이디가 존재하지 않습니다.")
         );
         posting.updatePost(requestDto);
+        //postingRepository.save(posting);
         return new PostingResponseDto(posting);
     }
 
