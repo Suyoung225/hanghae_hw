@@ -10,7 +10,8 @@
 - 3주차 : 주특기 입문 개인과제  <br>
 [springhw](https://github.com/Suyoung225/hanghae_hw/tree/main/springhw/src/main)
 
-
+- 4주차 : 주특기 심화 개인과제 <br>
+[springhw2](https://github.com/Suyoung225/hanghae_hw/tree/main/springhw2/src/main)
 ***
 
 ## 학습자료
