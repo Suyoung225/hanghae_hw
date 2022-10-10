@@ -72,14 +72,21 @@ public class UserService {
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(),user.getUsername());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId(),user.getUsername());
 
-        Auth auth = Auth.builder()
-                .user(user)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-        authRepository.save(auth);
-
-
+        Optional <Auth> found = Optional.ofNullable(authRepository.findByUserId(user.getId()));
+        if(found.isEmpty()){
+            Auth auth = Auth.builder()
+                    .user(user)
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+            authRepository.save(auth);
+            System.out.println("첫 로그인");
+        }else{
+            Auth auth = authRepository.findByUserId(user.getId());
+            auth.accessUpdate(accessToken);
+            auth.refreshUpdate(refreshToken);
+            authRepository.save(auth);
+        }
 
         response.addHeader("ACCESS_TOKEN",accessToken);
         response.addHeader("REFRESH_TOKEN",refreshToken);
@@ -99,14 +106,17 @@ public class UserService {
             if(jwtTokenProvider.isValidRefreshToken(refreshToken)){     //들어온 Refresh 토큰이 유효한지
                 System.out.println("Refresh 토큰은 유효함");
                 Claims claimsToken = jwtTokenProvider.getClaimsToken(refreshToken);
-                Long userId = (Long)claimsToken.get("userId");
+                int userId = (int)claimsToken.get("userId");
                 String username = (String)claimsToken.get("username");
                 Optional<User> user = userRepository.findByUsername(username);
-                String tokenFromDB = authRepository.findByUserId(user.get().getId()).get().getRefreshToken();
+                Auth auth = authRepository.findByUserId((long) userId);
+                String tokenFromDB = authRepository.findByUserId(user.get().getId()).getRefreshToken();
                 System.out.println("tokenFromDB = " + tokenFromDB);
                 if(refreshToken.equals(tokenFromDB)) {   //DB의 refresh토큰과 지금들어온 토큰이 같은지 확인
                     System.out.println("Access 토큰 재발급 완료");
-                    accessToken = jwtTokenProvider.createAccessToken(userId, username);
+                    accessToken = jwtTokenProvider.createAccessToken((long)userId, username);
+                    auth.accessUpdate(accessToken);
+                    authRepository.save(auth);
                 }
                 else{
                     //DB의 Refresh토큰과 들어온 Refresh토큰이 다르면 중간에 변조된 것임
@@ -118,6 +128,7 @@ public class UserService {
                 throw new IllegalArgumentException ("Refresh 토큰이 유효하지 않습니다. 다시 로그인 해주세요.");
             }
         }
+
         return TokenResponse.builder()
                 .ACCESS_TOKEN(accessToken)
                 .REFRESH_TOKEN(refreshToken)
