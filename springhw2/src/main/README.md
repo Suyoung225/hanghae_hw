@@ -1,7 +1,7 @@
 ## 스프링 입문주차 과제
 
 ### API 명세서 <br>
-[Postman](https://web.postman.co/workspace/ac1a3eea-2adc-4cdb-8721-f16ec2365d99/documentation/23647730-1edc6f94-91db-4589-8100-de54c2f075df)
+https://documenter.getpostman.com/view/23647730/2s83ziNic7
 
 
 ### ERD
