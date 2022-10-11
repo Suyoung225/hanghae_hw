@@ -45,10 +45,9 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰 생성
-    public String createAccessToken(Authentication authentication, String pw) {
+    public String createAccessToken(String username) {
         Date now = new Date();
-        Claims claims = Jwts.claims().setSubject(authentication.getName());
-        claims.put("pw",pw);
+        Claims claims = Jwts.claims().setSubject(username);
         byte[] secreteKeyBytes = Decoders.BASE64.decode(SECRET_KEY);
         String jwt =  Jwts.builder()
                 .setClaims(claims)
@@ -59,11 +58,10 @@ public class JwtTokenProvider {
         return BEARER_TYPE+jwt;
     }
 
-    public String createRefreshToken(Authentication authentication, String pw) {
+    public String createRefreshToken(String username) {
 
         Date now = new Date();
-        Claims claims = Jwts.claims().setSubject(authentication.getName());
-        claims.put("pw",pw);
+        Claims claims = Jwts.claims().setSubject(username);
         Date expiration = new Date(now.getTime() + REFRESH_TOKEN_VALID_TIME);
         byte[] refreshKeyBytes = Decoders.BASE64.decode(REFRESH_KEY);
 

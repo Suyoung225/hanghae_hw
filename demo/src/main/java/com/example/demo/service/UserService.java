@@ -75,11 +75,8 @@ public class UserService {
         if (!passwordEncoder.matches(userRequestDto.getPassword(), user.getPassword())) {
             throw new RequestException(ErrorCode.USER_NOT_FOUND_404);
         }
-        UsernamePasswordAuthenticationToken authenticationToken
-                = new UsernamePasswordAuthenticationToken(userRequestDto.getUsername(), userRequestDto.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        String accessToken = jwtTokenProvider.createAccessToken(authentication,userRequestDto.getPassword());
-        String refreshToken = jwtTokenProvider.createRefreshToken(authentication,userRequestDto.getPassword());
+        String accessToken = jwtTokenProvider.createAccessToken(userRequestDto.getUsername());
+        String refreshToken = jwtTokenProvider.createRefreshToken(userRequestDto.getUsername());
 
         Optional <Auth> found = Optional.ofNullable(authRepository.findByUserId(user.getId()));
         if(found.isEmpty()){
@@ -116,16 +113,12 @@ public class UserService {
                 System.out.println("Refresh 토큰은 유효함");
                 Claims claimsToken = jwtTokenProvider.getClaimsToken(refreshToken);
                 String username = claimsToken.getSubject();
-                String pw = (String) claimsToken.get("pw");
                 Optional<User> user = userRepository.findByUsername(username);
                 Auth auth = authRepository.findByUserId(user.get().getId());
                 String tokenFromDB = auth.getRefreshToken().substring(7);
                 System.out.println("tokenFromDB = " + tokenFromDB);
                 if(refreshToken.equals(tokenFromDB)) {   //DB의 refresh토큰과 지금들어온 토큰이 같은지 확인
-                    UsernamePasswordAuthenticationToken authenticationToken
-                            = new UsernamePasswordAuthenticationToken(username, pw);
-                    Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-                    String at = jwtTokenProvider.createAccessToken(authentication,pw);
+                    String at = jwtTokenProvider.createAccessToken(username);
                     auth.accessUpdate(at);
                     authRepository.save(auth);
                     System.out.println("Access 토큰 재발급 완료");
