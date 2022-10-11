@@ -1,5 +1,7 @@
 package com.sparta.springhw2.interceptor;
 
+import com.sparta.springhw2.exception.ErrorCode;
+import com.sparta.springhw2.exception.RequestException;
 import com.sparta.springhw2.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,14 +28,8 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         if (jwtTokenProvider.isValidAccessToken(accessToken) && jwtTokenProvider.isValidRefreshToken(refreshToken)) {
             return true;
         }else{
-            throw new IllegalArgumentException("Token이 유효하지 않습니다.");
+            throw new RequestException(ErrorCode.JWT_BAD_TOKEN_401);
         }
-        // !accessToken.equals("") && !refreshToken.equals("") &&
-        /* response.setStatus(401);
-        response.setHeader("ACCESS_TOKEN", accessToken);
-        response.setHeader("REFRESH_TOKEN", refreshToken);
-        response.setHeader("msg", "Check the tokens.");
-        return false;*/
     }
 
 }

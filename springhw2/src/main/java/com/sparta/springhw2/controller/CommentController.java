@@ -22,8 +22,8 @@ public class CommentController {
 
     // 댓글 목록 조회
     @GetMapping("/comments/{id}") //posting id
-    public List<CommentResponseDto> getList(@PathVariable Long id, HttpServletRequest request){
-        return commentService.getCommentList(id, request);
+    public List<CommentResponseDto> getList(@PathVariable Long id){
+        return commentService.getCommentList(id);
     }
 
     // 댓글 수정

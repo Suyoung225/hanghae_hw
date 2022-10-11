@@ -7,6 +7,8 @@ import com.sparta.springhw2.dto.UserResponseDto;
 import com.sparta.springhw2.dto.UserTokenResponseDto;
 import com.sparta.springhw2.entity.Auth;
 import com.sparta.springhw2.entity.User;
+import com.sparta.springhw2.exception.ErrorCode;
+import com.sparta.springhw2.exception.RequestException;
 import com.sparta.springhw2.jwt.JwtTokenProvider;
 import com.sparta.springhw2.repository.AuthRepository;
 import com.sparta.springhw2.repository.UserRepository;
@@ -19,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -37,18 +38,18 @@ public class UserService {
     public UserResponseDto register(UserRequestDto userRequestDto){
         Optional<User> found = userRepository.findByUsername(userRequestDto.getUsername());
         if(found.isPresent()){
-            throw new IllegalArgumentException("중복된 닉네임입니다.");
+            throw new RequestException(ErrorCode.LOGINID_DUPLICATION_409);
         }
         String regExpId = "^[a-zA-Z0-9]{4,12}$";
         String regExpPw = "^[a-zA-Z0-9]{4,32}$";
         if(!Pattern.matches(regExpId, userRequestDto.getUsername())){
-            throw new IllegalArgumentException("id 형식이 맞지 않습니다.");
+            throw new RequestException(ErrorCode.ID_NOT_ACCEPTABLE_406);
         }else if(!Pattern.matches(regExpPw, userRequestDto.getPassword())){
-            throw new IllegalArgumentException("비밀번호 형식이 맞지 않습니다.");
+            throw new RequestException(ErrorCode.PASSWORD_NOT_ACCEPTABLE_406);
         }
 
         if(!userRequestDto.getPassword().equals(userRequestDto.getPasswordCheck())){
-            throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+            throw new RequestException(ErrorCode.PASSWORD_NOT_MATCH_406);
         }
         User user = User.builder()
                 .username(userRequestDto.getUsername())
@@ -63,10 +64,10 @@ public class UserService {
     @Transactional
     public UserTokenResponseDto doLogin(UserRequestDto userRequestDto, HttpServletResponse response) throws Exception {
         User user = userRepository.findByUsername(userRequestDto.getUsername())
-                        .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
+                        .orElseThrow(() -> new RequestException(ErrorCode.USER_NOT_FOUND_404));
 
         if (!passwordEncoder.matches(userRequestDto.getPassword(), user.getPassword())) {
-            throw new NoSuchElementException("사용자를 찾을 수 없습니다.");
+            throw new RequestException(ErrorCode.USER_NOT_FOUND_404);
         }
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(),user.getUsername());
@@ -121,11 +122,11 @@ public class UserService {
                 else{
                     //DB의 Refresh토큰과 들어온 Refresh토큰이 다르면 중간에 변조된 것임
                     System.out.println("Refresh Token Tampered");
-                    throw new IllegalArgumentException ("Refresh 토큰이 다릅니다. 다시 로그인해주세요.");
+                    throw new RequestException(ErrorCode.JWT_BAD_TOKEN_401);
                 }
             }
             else{
-                throw new IllegalArgumentException ("Refresh 토큰이 유효하지 않습니다. 다시 로그인 해주세요.");
+                throw new RequestException(ErrorCode.JWT_BAD_TOKEN_401);
             }
         }
 

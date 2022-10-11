@@ -6,7 +6,8 @@ import com.sparta.springhw2.dto.PostingResponseDto;
 import com.sparta.springhw2.entity.Comment;
 import com.sparta.springhw2.entity.Posting;
 import com.sparta.springhw2.entity.User;
-import com.sparta.springhw2.exception.NotAuthorizedException;
+import com.sparta.springhw2.exception.ErrorCode;
+import com.sparta.springhw2.exception.RequestException;
 import com.sparta.springhw2.jwt.JwtTokenProvider;
 import com.sparta.springhw2.repository.CommentRepository;
 import com.sparta.springhw2.repository.PostingRepository;
@@ -18,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class PostingService {
         Claims accessClaims = jwtTokenProvider.getClaimsFormToken(accessToken);
         String username = (String)accessClaims.get("username");
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new RequestException(ErrorCode.USER_NOT_FOUND_404));
         Posting posting = new Posting(requestDto,user);
         postingRepository.save(posting);
         return new PostingResponseDto(posting);
@@ -54,7 +54,7 @@ public class PostingService {
     @Transactional(readOnly=true)
     public PostingResponseDto getPost(Long id){
         Posting posting = postingRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("게시글 id가 존재하지 않습니다.")
+                () -> new RequestException(ErrorCode.POSTING_ID_NOT_FOUND_404)
         );
         return new PostingResponseDto(posting);
     }
@@ -63,13 +63,13 @@ public class PostingService {
     @Transactional
     public PostingResponseDto updatePost(PostingRequestDto requestDto, Long id, HttpServletRequest request){
         Posting posting = postingRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("게시글 id가 존재하지 않습니다.")
+                () -> new RequestException(ErrorCode.POSTING_ID_NOT_FOUND_404)
         );
         String accessToken = request.getHeader("ACCESS_TOKEN");
         Claims accessClaims = jwtTokenProvider.getClaimsFormToken(accessToken);
         String username = (String)accessClaims.get("username");
         if(!username.equals(posting.getUser().getUsername())){
-            throw new NotAuthorizedException("작성자만 수정할 수 있습니다.");
+            throw new RequestException(ErrorCode.EDIT_UNAUTHORIZED_403);
         }
         posting.updatePost(requestDto);
         return new PostingResponseDto(posting);
@@ -79,13 +79,13 @@ public class PostingService {
     @Transactional
     public String deletePost(Long id, HttpServletRequest request){
         Posting posting = postingRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("게시글 id가 존재하지 않습니다.")
+                () -> new RequestException(ErrorCode.POSTING_ID_NOT_FOUND_404)
         );
         String accessToken = request.getHeader("ACCESS_TOKEN");
         Claims accessClaims = jwtTokenProvider.getClaimsFormToken(accessToken);
         String username = (String)accessClaims.get("username");
         if(!username.equals(posting.getUser().getUsername())){
-            throw new NotAuthorizedException("작성자만 삭제할 수 있습니다.");
+            throw new RequestException(ErrorCode.DELETE_UNAUTHORIZED_403);
         }
         List <Comment> commentList =  commentRepository.findByPostingId(id);
         commentRepository.deleteAll(commentList);
