@@ -12,6 +12,9 @@
 
 - 4주차 : 주특기 심화 개인과제 <br>
 [springhw2](https://github.com/Suyoung225/hanghae_hw/tree/main/springhw2/src/main)
+
+- 4주차 : 주특기 심화 개인과제 ver.2 <br>
+[demo](https://github.com/Suyoung225/hanghae_hw/tree/main/demo/src/main)
 ***
 
 ## 학습자료
