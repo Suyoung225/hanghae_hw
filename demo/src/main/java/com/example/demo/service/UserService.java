@@ -26,6 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static com.example.demo.jwt.JwtTokenProvider.AUTHORIZATION_HEADER;
+import static com.example.demo.jwt.JwtTokenProvider.BEARER_TYPE;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -75,8 +78,8 @@ public class UserService {
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userRequestDto.getUsername(), userRequestDto.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        String accessToken = jwtTokenProvider.createAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+        String accessToken = jwtTokenProvider.createAccessToken(authentication,userRequestDto.getPassword());
+        String refreshToken = jwtTokenProvider.createRefreshToken(authentication,userRequestDto.getPassword());
 
         Optional <Auth> found = Optional.ofNullable(authRepository.findByUserId(user.getId()));
         if(found.isEmpty()){
@@ -113,18 +116,23 @@ public class UserService {
                 System.out.println("Refresh 토큰은 유효함");
                 Claims claimsToken = jwtTokenProvider.getClaimsToken(refreshToken);
                 String username = claimsToken.getSubject();
+                String pw = (String) claimsToken.get("pw");
                 Optional<User> user = userRepository.findByUsername(username);
                 Auth auth = authRepository.findByUserId(user.get().getId());
-                String tokenFromDB = authRepository.findByUserId(user.get().getId()).getRefreshToken();
+                String tokenFromDB = auth.getRefreshToken().substring(7);
                 System.out.println("tokenFromDB = " + tokenFromDB);
                 if(refreshToken.equals(tokenFromDB)) {   //DB의 refresh토큰과 지금들어온 토큰이 같은지 확인
                     UsernamePasswordAuthenticationToken authenticationToken
-                            = new UsernamePasswordAuthenticationToken(username, user.get().getPassword());
+                            = new UsernamePasswordAuthenticationToken(username, pw);
                     Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-                    String at = jwtTokenProvider.createAccessToken(authentication);
+                    String at = jwtTokenProvider.createAccessToken(authentication,pw);
                     auth.accessUpdate(at);
                     authRepository.save(auth);
                     System.out.println("Access 토큰 재발급 완료");
+                    return TokenResponse.builder()
+                            .ACCESS_TOKEN(at)
+                            .REFRESH_TOKEN(BEARER_TYPE+refreshToken)
+                            .build();
                 }
                 else{
                     //DB의 Refresh토큰과 들어온 Refresh토큰이 다르면 중간에 변조된 것임
@@ -136,10 +144,9 @@ public class UserService {
                 throw new RequestException(ErrorCode.JWT_BAD_TOKEN_401);
             }
         }
-
         return TokenResponse.builder()
-                .ACCESS_TOKEN(accessToken)
-                .REFRESH_TOKEN(refreshToken)
+                .ACCESS_TOKEN(request.getHeader(AUTHORIZATION_HEADER))
+                .REFRESH_TOKEN(request.getHeader("REFRESH_TOKEN"))
                 .build();
     }
 

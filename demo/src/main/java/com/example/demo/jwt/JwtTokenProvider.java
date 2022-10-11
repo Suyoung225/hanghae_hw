@@ -28,7 +28,7 @@ public class JwtTokenProvider {
     private String REFRESH_KEY;
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_TYPE = "bearer ";
+    public static final String BEARER_TYPE = "Bearer ";
 
     private final long ACCESS_TOKEN_VALID_TIME = 30 * 60 * 1000L;   // 30분
     private final long REFRESH_TOKEN_VALID_TIME = 60 * 60 * 24 * 7 * 1000L;   // 1주
@@ -45,11 +45,13 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰 생성
-    public String createAccessToken(Authentication authentication) {
+    public String createAccessToken(Authentication authentication, String pw) {
         Date now = new Date();
+        Claims claims = Jwts.claims().setSubject(authentication.getName());
+        claims.put("pw",pw);
         byte[] secreteKeyBytes = Decoders.BASE64.decode(SECRET_KEY);
         String jwt =  Jwts.builder()
-                .setSubject(authentication.getName())
+                .setClaims(claims)
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_TIME)) // set Expire Time
                 .signWith(Keys.hmacShaKeyFor(secreteKeyBytes), SignatureAlgorithm.HS256)  // 사용할 암호화 알고리즘과
@@ -57,14 +59,16 @@ public class JwtTokenProvider {
         return BEARER_TYPE+jwt;
     }
 
-    public String createRefreshToken(Authentication authentication) {
+    public String createRefreshToken(Authentication authentication, String pw) {
 
         Date now = new Date();
+        Claims claims = Jwts.claims().setSubject(authentication.getName());
+        claims.put("pw",pw);
         Date expiration = new Date(now.getTime() + REFRESH_TOKEN_VALID_TIME);
         byte[] refreshKeyBytes = Decoders.BASE64.decode(REFRESH_KEY);
 
         String jwt = Jwts.builder()
-                .setSubject(authentication.getName())
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(Keys.hmacShaKeyFor(refreshKeyBytes), SignatureAlgorithm.HS256)
