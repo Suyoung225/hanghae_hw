@@ -1,5 +1,9 @@
 ## 스프링 입문주차 과제
 
+### 과제 ver.2 (@AuthenticationPrincipal, UserDetails 사용)
+https://github.com/Suyoung225/hanghae_hw/tree/main/demo/src/main
+
+
 ### API 명세서 <br>
 https://documenter.getpostman.com/view/23647730/2s83ziNic7
 
