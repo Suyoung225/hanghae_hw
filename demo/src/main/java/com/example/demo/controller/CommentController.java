@@ -4,13 +4,13 @@ import com.example.demo.dto.CommentRequestDto;
 import com.example.demo.dto.CommentResponseDto;
 import com.example.demo.security.UserDetailsImpl;
 import com.example.demo.service.CommentService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-
+@Api(tags = {"댓글 API 정보를 제공하는 Controller"})
 @RequiredArgsConstructor
 @RestController
 public class CommentController {

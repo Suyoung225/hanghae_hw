@@ -47,10 +47,9 @@ public class JwtTokenProvider {
     // JWT 토큰 생성
     public String createAccessToken(String username) {
         Date now = new Date();
-        Claims claims = Jwts.claims().setSubject(username);
         byte[] secreteKeyBytes = Decoders.BASE64.decode(SECRET_KEY);
         String jwt =  Jwts.builder()
-                .setClaims(claims)
+                .setSubject(username)
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_TIME)) // set Expire Time
                 .signWith(Keys.hmacShaKeyFor(secreteKeyBytes), SignatureAlgorithm.HS256)  // 사용할 암호화 알고리즘과
@@ -61,12 +60,11 @@ public class JwtTokenProvider {
     public String createRefreshToken(String username) {
 
         Date now = new Date();
-        Claims claims = Jwts.claims().setSubject(username);
         Date expiration = new Date(now.getTime() + REFRESH_TOKEN_VALID_TIME);
         byte[] refreshKeyBytes = Decoders.BASE64.decode(REFRESH_KEY);
 
         String jwt = Jwts.builder()
-                .setClaims(claims)
+                .setSubject(username)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(Keys.hmacShaKeyFor(refreshKeyBytes), SignatureAlgorithm.HS256)

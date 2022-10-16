@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +24,7 @@ import java.util.stream.Collectors;
 public class CommentService {
     private final PostingRepository postingRepository;
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
+
 
     // 댓글 작성
     @Transactional
@@ -42,7 +40,7 @@ public class CommentService {
     // 댓글 목록 조회
     @Transactional(readOnly=true)
     public List<CommentResponseDto> getCommentList(Long id){
-        Posting posting = postingRepository.findById(id).orElseThrow(
+        postingRepository.findById(id).orElseThrow(
                 () -> new RequestException(ErrorCode.POSTING_ID_NOT_FOUND_404)
         );
         List<Comment> comment = commentRepository.findByPostingId(id);
